@@ -1,0 +1,126 @@
+syntax = "proto3";
+
+option csharp_namespace = "Qexal";
+
+package qexal;
+
+import "google/protobuf/wrappers.proto";
+import "google/protobuf/timestamp.proto";
+
+service ShippingProvider {
+  rpc Cancel (CancelShipmentRequest) returns (CancelShipmentResponse);
+  rpc Label (ShippingLabelRequest) returns (ShippingLabelResponse);
+  rpc Save (ShippingRegisterRequest) returns (ShippingRegisterResponse);
+}
+
+message DecimalValue {
+  int64 units = 1;
+  sfixed32 nanos = 2;
+}
+
+message Address {
+  string LastName = 1;
+  string FirstName = 2;
+  string MiddleName = 3;
+  string Name = 4;
+  string Phone = 5;
+  string Email = 6;
+  string Country = 7;
+  string PostalCode = 8;
+  string Province = 9;
+  string City = 10;
+  string Address1 = 11;
+  string Address2 = 12;
+  string District = 13;
+  string CompanyName = 14;
+  string ExternalCityId = 15;
+  string ExternalAddressId = 16;
+}
+
+message CancelShipmentRequest {
+  int32 OrderId = 1;
+  int32 FulfillmentId = 2;
+}
+message CancelShipmentResponse {
+  bool Success = 1;
+  string Error = 2;
+}
+message ErrorResponse {
+  string Error = 1;
+}
+message Item {
+  string Name = 1;
+  string Sku = 2;
+  int32 Quantity = 3;
+  DecimalValue Price = 4;
+  DecimalValue Discount = 5;
+  DecimalValue Weight = 6;
+  int32 Length = 7;
+  int32 Width = 8;
+  int32 Height = 9;
+  string HarmonizedSystemCode = 10;
+  string CountryOfOrigin = 11;
+}
+enum LengthUnit {
+  Millimeters = 0;
+  Centimeters = 1;
+  Meters = 2;
+  Inches = 3;
+  Feet = 4;
+  Yards = 5;
+}
+message Package {
+  DecimalValue Length = 1;
+  DecimalValue Width = 2;
+  DecimalValue Height = 3;
+  DecimalValue Weight = 4;
+  LengthUnit LengthUnit = 5;
+  WeightUnit WeightUnit = 6;
+}
+enum PayerType {
+  Receiver = 0;
+  Sender = 1;
+}
+message ShipmentResponse {
+  string DeliveryId = 1;
+  google.protobuf.Timestamp EstimatedDeliveryDate = 2;
+  string TrackingNumber = 3;
+  DecimalValue Cost = 4;
+}
+message ShippingData {
+  string ServiceName = 1;
+  string ServiceType = 2;
+  map<string, string> Additional = 3;
+}
+message ShippingLabelRequest {
+  string TrackingNumber = 1;
+}
+message ShippingLabelResponse {
+  string DocumentUrl = 1;
+  bytes Document = 2;
+}
+message ShippingRegisterRequest {
+  string SenderId = 1;
+  int32 OrderId = 2;
+  string OrderNumber = 3;
+  string Currency = 4;
+  bool Postpaid = 5;
+  google.protobuf.Timestamp ShipmentDate = 6;
+  PayerType PayerType = 7;
+  Address Origin = 8;
+  Address Destination = 9;
+  repeated Item Items = 10;
+  ShippingData ShippingData = 11;
+  DecimalValue PostpaidAmount = 12;
+  Package Package = 13;
+}
+message ShippingRegisterResponse {
+  ShipmentResponse Shipment = 1;
+  ErrorResponse Error = 2;
+}
+enum WeightUnit {
+  Grams = 0;
+  Kilograms = 1;
+  Ounces = 2;
+  Pounds = 3;
+}
