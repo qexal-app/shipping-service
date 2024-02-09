@@ -1,0 +1,187 @@
+syntax = "proto3";
+
+option csharp_namespace = "Qexal";
+
+package qexal;
+
+import "google/protobuf/wrappers.proto";
+import "google/protobuf/timestamp.proto";
+
+service ShippingProvider {
+  rpc ValidateAddress (ValidateAddressRequest) returns (ValidateAddressResponse);
+  rpc Cancel (CancelShipmentRequest) returns (CancelShipmentResponse);
+  rpc Label (ShippingLabelRequest) returns (ShippingLabelResponse);
+  rpc Save (ShippingRegisterRequest) returns (ShippingRegisterResponse);
+}
+
+// Example: 12345.6789 -> { units = 12345, nanos = 678900000 }
+message DecimalValue {
+
+  // Whole units part of the amount
+  int64 units = 1;
+
+  // Nano units of the amount (10^-9)
+  // Must be same sign as units
+  sfixed32 nanos = 2;
+}
+
+message Address {
+  google.protobuf.StringValue last_name = 1;
+  google.protobuf.StringValue first_name = 2;
+  google.protobuf.StringValue middle_name = 3;
+  google.protobuf.StringValue name = 4;
+  google.protobuf.StringValue phone = 5;
+  google.protobuf.StringValue email = 6;
+  google.protobuf.StringValue country = 7;
+  google.protobuf.StringValue postal_code = 8;
+  google.protobuf.StringValue province = 9;
+  google.protobuf.StringValue city = 10;
+  google.protobuf.StringValue address1 = 11;
+  google.protobuf.StringValue address2 = 12;
+  google.protobuf.StringValue district = 13;
+  google.protobuf.StringValue company_name = 14;
+  google.protobuf.StringValue external_cityId = 15;
+  google.protobuf.StringValue external_addressId = 16;
+  //  google.protobuf.StringValue first_name = 1;
+  //  google.protobuf.StringValue last_name = 2;
+  //  google.protobuf.StringValue middle_name = 3;
+  //  google.protobuf.StringValue company_name = 4;
+  //  google.protobuf.StringValue phone = 5;
+  //  google.protobuf.StringValue email = 6;
+  //  google.protobuf.StringValue country = 7;
+  //  google.protobuf.StringValue province = 8;
+  //  google.protobuf.StringValue district = 9;
+  //  google.protobuf.StringValue city = 10;
+  //  google.protobuf.StringValue address1 = 11;
+  //  google.protobuf.StringValue address2 = 12;
+  //  google.protobuf.StringValue post_code = 13;
+  //  google.protobuf.StringValue external_cityId = 14;
+  //  google.protobuf.StringValue external_addressId = 15;
+}
+
+message CancelShipmentRequest {
+  int32 orderId = 1;
+  int32 fulfillmentId = 2;
+}
+
+message CancelShipmentResponse {
+  bool success = 1;
+  string error = 2;
+}
+
+message ErrorResponse {
+  string error = 1;
+}
+
+message Item {
+  string name = 1;
+  string sku = 2;
+  int32 quantity = 3;
+  DecimalValue price = 4;
+  DecimalValue discount = 5;
+  DecimalValue weight = 6;
+  int32 length = 7;
+  int32 width = 8;
+  int32 height = 9;
+  string harmonizedSystemCode = 10;
+  string countryOfOrigin = 11;
+}
+
+message ShipmentResponse {
+  string deliveryId = 1;
+  google.protobuf.Timestamp estimatedDeliveryDate = 2;
+  string trackingNumber = 3;
+  DecimalValue cost = 4;
+}
+
+message ShippingData {
+  google.protobuf.StringValue serviceName = 1;
+  google.protobuf.StringValue serviceType = 2;
+  map<string, string> additional = 3;
+}
+
+message ShippingLabelRequest {
+  string trackingNumber = 1;
+}
+
+message ShippingLabelResponse {
+  bytes document = 1;
+}
+
+message ShippingRegisterRequest {
+  string senderId = 1;
+  int32 orderId = 2;
+  string orderNumber = 3;
+  string currency = 4;
+  bool postpaid = 5;
+  google.protobuf.Timestamp shipmentDate = 6;
+  PayerType payerType = 7;
+  Address origin = 8;
+  Address destination = 9;
+  repeated Item items = 10;
+  ShippingData shippingData = 11;
+  DecimalValue postpaidAmount = 12;
+  Package package = 13;
+}
+
+message Package {
+  google.protobuf.StringValue package_id = 1;
+  google.protobuf.StringValue package_code = 2;
+  google.protobuf.StringValue content_description = 3;
+  Weight weight = 4;
+  Dimensions dimensions = 5;
+}
+
+message Weight {
+  double value = 1;
+  WeightUnit unit = 2;
+}
+
+message Dimensions {
+  double length = 1;
+  double width = 2;
+  double height = 3;
+  DimensionUnit unit = 4;
+}
+
+message ShippingRegisterResponse {
+  ShipmentResponse shipment = 1;
+  ErrorResponse error = 2;
+}
+
+message ValidateAddressRequest {
+  Address address = 1;
+  google.protobuf.StringValue service_name = 2;
+}
+
+message ValidateAddressResponse {
+  AddressValidationStatus status = 1;
+  Address original_address = 2;
+  Address matched_address = 3;
+  repeated string messages = 4;
+  google.protobuf.StringValue service_name = 5;
+}
+
+enum AddressValidationStatus{
+  Unverified = 0;
+  Verified = 1;
+  Warning = 2;
+  Error = 3;
+}
+
+enum WeightUnit {
+  Gram = 0;
+  Kilogram = 1;
+  Ounce = 2;
+  Pound = 3;
+}
+
+enum DimensionUnit {
+  Centimeter = 0;
+  Inch = 1;
+}
+
+enum PayerType {
+  Receiver = 0;
+  Sender = 1;
+}
