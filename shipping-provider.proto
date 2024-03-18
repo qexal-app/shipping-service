@@ -85,6 +85,7 @@ message Item {
   int32 height = 9;
   string harmonizedSystemCode = 10;
   string countryOfOrigin = 11;
+  DecimalValue total = 12;
 }
 
 message ShipmentResponse {
